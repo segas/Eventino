@@ -2,7 +2,7 @@
   <ion-header-bar>
     <h1 class="title">Login</h1>
     <div class="buttons">
-      <button class="button button-clear" ng-click="closeLogin()">Close</button>
+      <button class="button button-clear" ng-click="closeLoginModal()">Close</button>
     </div>
   </ion-header-bar>
   <ion-content>
@@ -17,9 +17,12 @@
           <input type="password" ng-model="loginData.password">
         </label>
         <label class="item">
-          <button class="button button-block button-positive" type="submit">Log in</button>
+          <button class="button button-block button-positive" type="submit">Einloggen</button>
         </label>
       </div>
     </form>
+    <label class="item">
+      <button class="button button-block button-energized" ng-click="openRegistrationModal()" type="submit">Registrierung</button>
+    </label>
   </ion-content>
 </ion-modal-view>

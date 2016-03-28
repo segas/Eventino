@@ -6,14 +6,14 @@ angular.module('account', [])
     $scope.loginData = {};
     $scope.userData = {};
     // Create the login modal that we will use later
-    $ionicModal.fromTemplateUrl('views/login.html', {
+    $ionicModal.fromTemplateUrl('modals/login.html', {
       scope: $scope
     }).then(function(modal) {
       $scope.login_modal = modal;
     });
 
     // Create the registration modal that we will use later
-    $ionicModal.fromTemplateUrl('views/registration.html', {
+    $ionicModal.fromTemplateUrl('modals/registration.html', {
       scope: $scope
     }).then(function(modal) {
       $scope.registration_modal = modal;
@@ -25,6 +25,7 @@ angular.module('account', [])
     };
     // Open the registration modal
     $scope.openRegistrationModal = function() {
+      $scope.closeRegistrationModal();
       $scope.registration_modal.show();
     };
     // Perform the login action when the user submits the login form
@@ -33,7 +34,7 @@ angular.module('account', [])
       .then(function (data) {
           //log in successfull
           //window.alert("Login funktioniert")
-          $scope.closeLogin();
+          $scope.closeLoginModal();
           //window.alert(data);
           //$scope.checkLogin();
       }, function (data) {
@@ -46,7 +47,7 @@ angular.module('account', [])
         RegistrationService.registerUser(userData)
         .then(function (data) {
             //log in successfull
-            $scope.closeRegistration();
+            $scope.closeRegistrationModal();
         }, function (data) {
             //log in failed
         });
@@ -57,11 +58,11 @@ angular.module('account', [])
 
     };
     // Triggered in the login modal to close it
-    $scope.closeLogin = function() {
+    $scope.closeLoginModal = function() {
       $scope.login_modal.hide();
     };
     // Triggered in the registration modal to close it
-    $scope.closeRegistration = function() {
+    $scope.closeRegistrationModal = function() {
       $scope.registration_modal.hide();
     };
     // Perform a logoff

@@ -1,0 +1,43 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <h1 class="title">Registrierung</h1>
+    <div class="buttons">
+      <button class="button button-clear" ng-click="closeRegistration()">Close</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <p id="message">Sie müssen das gesamte Formular ausfüllen, um die Registrierung abzuschliessen.</p>
+    <form ng-submit="doRegistration(userData)">
+      <div class="list list-inset">
+        <label class="item item-input">
+          <input type="text" ng-model="userData.username" placeholder="Username">
+        </label>
+        <label class="item item-input">
+          <input type="password" id="password" ng-model="userData.password" placeholder="Passwort">
+        </label>
+        <label class="item item-input">
+          <input type="password" id="password2" ng-model="userData.password2" placeholder="Passwort wiederholen">
+        </label>
+        <label class="item item-input">
+          <input type="text" id="email" ng-model="userData.email" placeholder="Email">
+        </label>
+        <!--<label class="item item-input">
+          <input type="text" id="email2" ng-model="userData.email2" placeholder="Email wiederholen">
+        </label>-->
+        <label class="item item-input">
+          <input type="text" ng-model="userData.age" placeholder="Alter">
+        </label>
+        <label class="item item-input item-select">
+          <div class="input-label">Geschlecht</div>
+          <select ng-model="userData.sex">
+            <option value="m" selected>Männlich</option>
+            <option value="w">Weiblich</option>
+          </select>
+        </label>
+        <label class="item">
+          <button class="button button-block button-positive" type="submit">Log in</button>
+        </label>
+      </div>
+    </form>
+  </ion-content>
+</ion-modal-view>

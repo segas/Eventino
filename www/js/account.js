@@ -25,7 +25,6 @@ angular.module('account', [])
     };
     // Open the registration modal
     $scope.openRegistrationModal = function() {
-      $scope.closeRegistrationModal();
       $scope.registration_modal.show();
     };
     // Perform the login action when the user submits the login form
@@ -33,17 +32,14 @@ angular.module('account', [])
       LoginService.loginUser(userLogin)
       .then(function (data) {
           //log in successfull
-          //window.alert("Login funktioniert")
           $scope.closeLoginModal();
-          //window.alert(data);
-          //$scope.checkLogin();
       }, function (data) {
           //log in failed
       });
     };
     // Perform the registration action when the user submits the registration form
     $scope.doRegistration = function (userData) {
-      if(userData.password == userData.password2) {
+      if($scope.CheckInputs() == true) {
         RegistrationService.registerUser(userData)
         .then(function (data) {
             //log in successfull
@@ -51,11 +47,7 @@ angular.module('account', [])
         }, function (data) {
             //log in failed
         });
-      }else {
-        var ps = document.getElementById('password2');
-        ps.style.color = 'red';
       }
-
     };
     // Triggered in the login modal to close it
     $scope.closeLoginModal = function() {
@@ -79,7 +71,56 @@ angular.module('account', [])
       if(AccountService.CheckLoginState != true){
         $scope.openLoginModal();
       }
-    }
+    };
+
+    $scope.CheckInputs = function() {
+      //Über die DOM-Methode document.getElementById wird der Wert aus dem Eingabefeld geholt
+      //und der Variablen val zugewiesen.
+      var passwd1val = document.getElementById('password').value;
+      var passwd2val = document.getElementById('password2').value;
+      var password = document.getElementById('password');
+      var password2 = document.getElementById('password2');
+      var emailval = document.getElementById('email').value;
+      var email = document.getElementById('email');
+
+      //Ab hier beginnt die Prüfung.
+      //Das Passwort ist entweder zu kurz, unsicher, sicher oder sehr sicher
+      if(passwd1val.length > 6 && passwd1val.match(/[a-z]/) && passwd1val.match(/[A-Z]/) && passwd1val.match(/.[,!,@,#,$,%,^,&,*,?,_,~,-,(,)]/) && passwd1val.match(/[0-9]/)){
+        password.style.color="#428c0d";
+        if(password.value == password2.value){
+          password2.style.color="#428c0d";
+          if(emailval.match(/[@]/) && emailval.match(/[.]/)){
+            email.style.color = "#428c0d";
+            return true;
+          }else{
+            email.style.color = "red";
+            return false;
+          }
+        }else{
+          password2.style.color="red";
+          if(emailval.match(/[@]/) && emailval.match(/[.]/)){
+            email.style.color = "#428c0d";
+          }else{
+            email.style.color = "red";
+          }
+          return false;
+        }
+      }else{
+        password.style.color="red";
+        if(password.value == password2.value){
+          password2.style.color="#428c0d";
+        }else{
+          password2.style.color="red";
+        }
+        if(emailval.match(/[@]/) && emailval.match(/[.]/)){
+          email.style.color = "#428c0d";
+        }else{
+          email.style.color = "red";
+        }
+        return false;
+      }
+
+    };
   })
 
 .service('LoginService', function ($q, $http) {
@@ -148,6 +189,8 @@ angular.module('account', [])
                           localStorage.setItem('sex', response.data.userData.sex);
 
                           deferred.resolve(response.data);
+                      } else if(response.data.error.code === "001") {
+                        console.log("Emailaddress or username in use");
                       } else {
                           console.log("User registration failed: " + JSON.stringify(response.data.error));
                           deferred.reject(response.data);

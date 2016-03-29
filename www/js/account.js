@@ -1,10 +1,12 @@
 angular.module('account', [])
 
-.controller('AppCtrl', function ($scope, $state, $ionicModal, $timeout, LoginService, RegistrationService, AccountService) {
+.controller('AppCtrl', function ($scope, $state, $ionicModal, $timeout, LoginService, RegistrationService, AccountService, AddOrganizerService) {
 
     // Form data for the login modal
     $scope.loginData = {};
     $scope.userData = {};
+    $scope.organizerData = {};
+
     // Create the login modal that we will use later
     $ionicModal.fromTemplateUrl('modals/login.html', {
       scope: $scope
@@ -19,6 +21,13 @@ angular.module('account', [])
       $scope.registration_modal = modal;
     });
 
+    // Create the organizer modal that we will use later
+    $ionicModal.fromTemplateUrl('modals/add_organizer.html', {
+      scope: $scope
+    }).then(function(modal) {
+      $scope.add_organizer_modal = modal;
+    });
+
     // Open the login modal
     $scope.openLoginModal = function() {
       $scope.login_modal.show();
@@ -27,6 +36,11 @@ angular.module('account', [])
     $scope.openRegistrationModal = function() {
       $scope.registration_modal.show();
     };
+    // Open the add_organizer modal
+    $scope.openAddOrganizerModal = function() {
+      $scope.add_organizer_modal.show();
+    };
+
     // Perform the login action when the user submits the login form
     $scope.doLogin = function (userLogin) {
       LoginService.loginUser(userLogin)
@@ -53,6 +67,24 @@ angular.module('account', [])
         });
       }
     };
+    // Perform the registration action when the user submits the registration form
+    $scope.doAddOrganizer = function (userData) {
+      var organizer_name = document.getElementById('organizer_name');
+      if(organizer_name.value == ""){
+        var call_organizer_name = document.getElementById('call_organizer_name');
+        organizer_name.placeholder = "Dieses Feld muss ausgefüllt werden";
+      }else{
+        userData.userid = localStorage.getItem('id_user');
+        console.log(userData);
+        AddOrganizerService.registerUserAsOrganizer(userData)
+        .then(function (data) {
+            //registration successfull
+            $scope.closeAddOrganizerModal();
+        }, function (data) {
+            //registration failed
+        });
+      }
+    };
     // Triggered in the login modal to close it
     $scope.closeLoginModal = function() {
       $scope.login_modal.hide();
@@ -60,6 +92,10 @@ angular.module('account', [])
     // Triggered in the registration modal to close it
     $scope.closeRegistrationModal = function() {
       $scope.registration_modal.hide();
+    };
+    // Triggered in the login modal to close it
+    $scope.closeAddOrganizerModal = function() {
+      $scope.add_organizer_modal.hide();
     };
     // Perform a logoff
     $scope.logoff = function() {
@@ -139,10 +175,13 @@ angular.module('account', [])
                           console.log("User login successful: " + JSON.stringify(response.data));
                           // Start a Login Session, to store the Account information
                           localStorage.setItem('loginstate', response.data.userData.correct);
+                          localStorage.setItem('id_user', response.data.userData.id_user);
                           localStorage.setItem('username', response.data.userData.username);
                           localStorage.setItem('email', response.data.userData.email);
                           localStorage.setItem('age', response.data.userData.age);
                           localStorage.setItem('sex', response.data.userData.sex);
+                          localStorage.setItem('id_organizer', response.data.userData.id_organizer);
+                          localStorage.setItem('organizer_name', response.data.userData.organizer_name);
 
                           deferred.resolve(response.data);
                       } else {
@@ -183,10 +222,13 @@ angular.module('account', [])
                           console.log("User registration successful: " + JSON.stringify(response.data));
                           // Start a Login Session, to store the Account information
                           localStorage.setItem('loginstate', response.data.userData.correct);
+                          localStorage.setItem('id_user', response.data.userData.id_user);
                           localStorage.setItem('username', response.data.userData.username);
                           localStorage.setItem('email', response.data.userData.email);
                           localStorage.setItem('age', response.data.userData.age);
                           localStorage.setItem('sex', response.data.userData.sex);
+                          localStorage.setItem('id_organizer', response.data.userData.id_organizer);
+                          localStorage.setItem('organizer_name', response.data.userData.organizer_name);
 
                           deferred.resolve(response.data);
                       } else if(response.data.error.code === "001") {
@@ -222,6 +264,68 @@ angular.module('account', [])
           },
       };
     })
+
+.service('AddOrganizerService', function ($q, $http) {
+  return {
+      registerUserAsOrganizer: function (userData) {
+          var deferred = $q.defer(),
+              promise = deferred.promise;
+          $http({
+              url: 'http://segas.ch/eventino/php/add_organizer.php',
+              method: "POST",
+              data: userData,
+              headers: { 'Content-Type': 'application/json' }
+          })
+              .then(function (response) {
+                  if (response.data.error.code === "000") {
+                      console.log("Add User to Organizer successful: " + JSON.stringify(response.data));
+                      // Start a Login Session, to store the Account information
+                      localStorage.setItem('loginstate', response.data.userData.correct);
+                      localStorage.setItem('id_user', response.data.userData.id_user);
+                      localStorage.setItem('username', response.data.userData.username);
+                      localStorage.setItem('email', response.data.userData.email);
+                      localStorage.setItem('age', response.data.userData.age);
+                      localStorage.setItem('sex', response.data.userData.sex);
+                      localStorage.setItem('id_organizer', response.data.userData.id_organizer);
+                      localStorage.setItem('organizer_name', response.data.userData.organizer_name);
+
+                      deferred.resolve(response.data);
+                  } else if(response.data.error.code === "001"){ // Organisatorname existiert bereits
+                      console.log("Organizername already exists");
+                      var organizer_name = document.getElementById('organizer_name');
+                      var call_organizer_name = document.getElementById('call_organizer_name');
+                      organizer_name.style.color = "red";
+                      call_organizer_name.innerHTML = "Organisatorname existiert bereits"
+                      deferred.reject(response.data);
+                  } else if(response.data.error.code === "003"){ // Sie sind bereits Organisator
+                      console.log("You're already a organizer");
+                      var call_organizer_name = document.getElementById('message');
+                      call_organizer_name.style.color = "red";
+                      call_organizer_name.innerHTML = "Sie sind bereits ein Organisator"
+                      deferred.reject(response.data);
+                  } else {
+                    // Add User to Organizer failed
+                    console.log("Add User to Organizer failed: " + JSON.stringify(response.data.error));
+                    deferred.reject(response.data);
+                  }
+                  deferred.resolve(response.data);
+              }, function (error) {
+                  console.log("Server Error on login: " + JSON.stringify(error));
+                  deferred.reject(error);
+              });
+
+          promise.success = function (fn) {
+              promise.then(fn);
+              return promise;
+          };
+          promise.error = function (fn) {
+              promise.then(null, fn);
+              return promise;
+          };
+          return promise;
+      },
+  };
+})
 
 .service('AccountService', function ($q, $http) {
     return {

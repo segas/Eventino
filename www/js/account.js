@@ -39,13 +39,17 @@ angular.module('account', [])
     };
     // Perform the registration action when the user submits the registration form
     $scope.doRegistration = function (userData) {
+      var message = document.getElementById('username_call');
+      message.innerHTML = "";
+      message = document.getElementById('email_call');
+      message.innerHTML = "";
       if($scope.CheckInputs() == true) {
         RegistrationService.registerUser(userData)
         .then(function (data) {
-            //log in successfull
+            //registration successfull
             $scope.closeRegistrationModal();
         }, function (data) {
-            //log in failed
+            //registration failed
         });
       }
     };
@@ -84,40 +88,36 @@ angular.module('account', [])
       var email = document.getElementById('email');
 
       //Ab hier beginnt die Prüfung.
-      //Das Passwort ist entweder zu kurz, unsicher, sicher oder sehr sicher
+      //Überprüfung ob das Kennwort den Richtlinien entsprechend ist
       if(passwd1val.length > 6 && passwd1val.match(/[a-z]/) && passwd1val.match(/[A-Z]/) && passwd1val.match(/.[,!,@,#,$,%,^,&,*,?,_,~,-,(,)]/) && passwd1val.match(/[0-9]/)){
-        password.style.color="#428c0d";
-        if(password.value == password2.value){
-          password2.style.color="#428c0d";
-          if(emailval.match(/[@]/) && emailval.match(/[.]/)){
-            email.style.color = "#428c0d";
-            return true;
+        password.style.color="#428c0d"; // Wenn ja, dann färbe es grün ein
+        if(password.value == password2.value){ //Überprüfung ob die Passwörter übereinstimmen
+          password2.style.color="#428c0d"; // Wenn ja, dann färbe das 2. Passwort auch grün ein
+          if(emailval.match(/[@]/) && emailval.match(/[.]/)){ //Überprüfung ob die Email-Adresse ein @-Zeichen und ein Punkt enthält
+            email.style.color = "#428c0d"; // Wenn ja, dann färbe es grün ein
+            return true; // Return true, wenn Passwortrichtlinien erfüllt, Passwort1 = Passwort2 und Email korrekt
           }else{
-            email.style.color = "red";
-            return false;
+            email.style.color = "red"; // Wenn nein, dann färbe Email-Adresse rot ein
+            return false; // Nicht alle Bedingungen erfüllt
           }
-        }else{
-          password2.style.color="red";
-          if(emailval.match(/[@]/) && emailval.match(/[.]/)){
-            email.style.color = "#428c0d";
+        }else{ // Passwörter stimmen nicht überein
+          password2.style.color="red"; //Passwort 2 rot einfärben
+          if(emailval.match(/[@]/) && emailval.match(/[.]/)){ //Überprüfung ob die Email-Adresse ein @-Zeichen und ein Punkt enthält
+            email.style.color = "#428c0d"; // Wenn ja, dann färbe es grün ein
           }else{
-            email.style.color = "red";
+            email.style.color = "red"; // Wenn nein, dann färbe Email-Adresse rot ein
           }
-          return false;
+          return false; // Nicht alle Bedingungen erfüllt
         }
-      }else{
-        password.style.color="red";
-        if(password.value == password2.value){
-          password2.style.color="#428c0d";
+      }else{ //PAsswort entspricht nicht den Richtlinien
+        password.style.color="red"; // PAsswort 1 rot einfärben
+
+        if(emailval.match(/[@]/) && emailval.match(/[.]/)){ //Überprüfung ob die Email-Adresse ein @-Zeichen und ein Punkt enthält
+          email.style.color = "#428c0d"; // Grün einfärben
         }else{
-          password2.style.color="red";
+          email.style.color = "red"; // Rot einfärben
         }
-        if(emailval.match(/[@]/) && emailval.match(/[.]/)){
-          email.style.color = "#428c0d";
-        }else{
-          email.style.color = "red";
-        }
-        return false;
+        return false; // Nicht alle Bedingungen erfüllt
       }
 
     };
@@ -190,10 +190,19 @@ angular.module('account', [])
 
                           deferred.resolve(response.data);
                       } else if(response.data.error.code === "001") {
-                        console.log("Emailaddress or username in use");
+                        // Username wird bereits benutzt
+                        var message = document.getElementById('username_call');
+                        message.innerHTML = "Username wird bereits benutzt"
+                        deferred.reject(response.data);
+                      } else if(response.data.error.code === "003") {
+                        // Emailaddresse wird bereits benutzt
+                        var message = document.getElementById('email_call');
+                        message.innerHTML = "Emailaddresse wird bereits benutzt"
+                        deferred.reject(response.data);
                       } else {
-                          console.log("User registration failed: " + JSON.stringify(response.data.error));
-                          deferred.reject(response.data);
+                        // User Registration failed
+                        console.log("User registration failed: " + JSON.stringify(response.data.error));
+                        deferred.reject(response.data);
                       }
                       deferred.resolve(response.data);
                   }, function (error) {

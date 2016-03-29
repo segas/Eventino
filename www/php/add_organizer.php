@@ -56,7 +56,6 @@
 			}
 		}
 
-
 	} else {
 		// something failed with submitting data, should never get here!
 		echo('{"userData":'.json_encode($userData).', "error": {"code":"005", "message": "Login error! Code: 005"}}');

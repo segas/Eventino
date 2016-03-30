@@ -57,14 +57,16 @@ angular.module('account', [])
       message.innerHTML = "";
       message = document.getElementById('email_call');
       message.innerHTML = "";
+      var cryptohash = CryptoJS.SHA256(userData.password, userData.username);
+      console.log(cryptohash);
       if($scope.CheckInputs() == true) {
-        RegistrationService.registerUser(userData)
-        .then(function (data) {
+        //RegistrationService.registerUser(userData)
+        //.then(function (data) {
             //registration successfull
-            $scope.closeRegistrationModal();
-        }, function (data) {
+        //    $scope.closeRegistrationModal();
+        //}, function (data) {
             //registration failed
-        });
+        //});
       }
     };
     // Perform the registration action when the user submits the registration form
@@ -112,7 +114,7 @@ angular.module('account', [])
         $scope.openLoginModal();
       }
     };
-
+    // Check inputs
     $scope.CheckInputs = function() {
       //Über die DOM-Methode document.getElementById wird der Wert aus dem Eingabefeld geholt
       //und der Variablen val zugewiesen.

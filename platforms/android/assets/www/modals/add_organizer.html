@@ -1,0 +1,24 @@
+<ion-modal-view>
+  <ion-header-bar>
+    <h1 class="title">Werden Sie zum Organisator</h1>
+    <div class="buttons">
+      <button class="button button-clear" ng-click="closeAddOrganizerModal()">Close</button>
+    </div>
+  </ion-header-bar>
+  <ion-content>
+    <p>Sie müssen das gesamte Formular ausfüllen, um das Formular abzuschliessen.</p>
+    <p id="message"></p>
+    <form ng-submit="doAddOrganizer(userData)">
+      <div class="list">
+        <label class="item item-input">
+          <span class="input-label">Organisatorname</span>
+          <input type="text" id="organizer_name" ng-model="userData.name" placeholder="Organisatorname">
+          <p id="call_organizer_name"></p>
+        </label>
+        <label class="item">
+          <button class="button button-block button-positive" type="submit">Ich will Organisator werden</button>
+        </label>
+      </div>
+    </form>
+  </ion-content>
+</ion-modal-view>
